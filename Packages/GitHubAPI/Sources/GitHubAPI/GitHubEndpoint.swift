@@ -14,11 +14,11 @@ enum GitHubEndpoint: Equatable, Sendable {
     func request(
         baseURL: URL = URL(string: "https://api.github.com")!,
         token: String? = nil,
-        timeout: TimeInterval = 15,
+        timeout: TimeInterval = 15
     ) throws -> URLRequest {
         var components = try validatedComponents(
             baseURL: baseURL,
-            requiresHTTPS: token != nil,
+            requiresHTTPS: token != nil
         )
 
         try validateConfiguration(token: token, timeout: timeout)
@@ -31,27 +31,27 @@ enum GitHubEndpoint: Equatable, Sendable {
         var request = URLRequest(
             url: url,
             cachePolicy: .reloadIgnoringLocalCacheData,
-            timeoutInterval: timeout,
+            timeoutInterval: timeout
         )
 
         request.httpMethod = "GET"
         request.setValue(
             "application/vnd.github+json",
-            forHTTPHeaderField: "Accept",
+            forHTTPHeaderField: "Accept"
         )
         request.setValue(
             "2022-11-28",
-            forHTTPHeaderField: "X-GitHub-Api-Version",
+            forHTTPHeaderField: "X-GitHub-Api-Version"
         )
         request.setValue(
             "GitHubAPI-Swift",
-            forHTTPHeaderField: "User-Agent",
+            forHTTPHeaderField: "User-Agent"
         )
 
         if let token {
             request.setValue(
                 "Bearer \(token)",
-                forHTTPHeaderField: "Authorization",
+                forHTTPHeaderField: "Authorization"
             )
         }
 
@@ -60,12 +60,12 @@ enum GitHubEndpoint: Equatable, Sendable {
 
     private func validatedComponents(
         baseURL: URL,
-        requiresHTTPS: Bool,
+        requiresHTTPS: Bool
     ) throws -> URLComponents {
         guard
             let components = URLComponents(
                 url: baseURL,
-                resolvingAgainstBaseURL: false,
+                resolvingAgainstBaseURL: false
             ),
             let scheme = components.scheme?.lowercased(),
             scheme == "http" || scheme == "https",
@@ -85,7 +85,7 @@ enum GitHubEndpoint: Equatable, Sendable {
 
     private func validateConfiguration(
         token: String?,
-        timeout: TimeInterval,
+        timeout: TimeInterval
     ) throws {
         guard timeout.isFinite, timeout > 0 else {
             throw GitHubAPIError.invalidInput
@@ -105,7 +105,7 @@ enum GitHubEndpoint: Equatable, Sendable {
     }
 
     private func configureURL(
-        _ components: inout URLComponents,
+        _ components: inout URLComponents
     ) throws {
         var path = components.percentEncodedPath
 
@@ -123,7 +123,7 @@ enum GitHubEndpoint: Equatable, Sendable {
 
             components.queryItems = [
                 URLQueryItem(name: "since", value: String(since)),
-                URLQueryItem(name: "per_page", value: String(perPage)),
+                URLQueryItem(name: "per_page", value: String(perPage))
             ]
 
         case let .detail(login):
@@ -137,7 +137,7 @@ enum GitHubEndpoint: Equatable, Sendable {
     private func validateLogin(_ login: String) throws {
         let allowedCharacters = CharacterSet(
             charactersIn:
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_",
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
         )
 
         guard

@@ -27,7 +27,7 @@ struct UserCard: View {
                     LinearGradient(
                         colors: [.black.opacity(0.82), .black],
                         startPoint: .top,
-                        endPoint: .bottom,
+                        endPoint: .bottom
                     )
                 }
             }

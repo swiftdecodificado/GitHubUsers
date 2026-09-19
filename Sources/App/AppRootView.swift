@@ -23,7 +23,7 @@ struct AppRootView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            UsersListView(vm: listViewModel)
+            UsersListView(viewModel: listViewModel)
                 .navigationDestination(for: GitHubUser.self) { user in
                     UserDetailView(user: user, service: service, cache: cache)
                 }

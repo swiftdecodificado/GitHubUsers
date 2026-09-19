@@ -52,7 +52,7 @@ enum L10n {
     static var refreshed: String {
         String(
             localized: "refreshed",
-            defaultValue: "Lista de usuários atualizada",
+            defaultValue: "Lista de usuários atualizada"
         )
     }
 
@@ -63,7 +63,7 @@ enum L10n {
     static func user(_ name: String) -> String {
         String(
             format: String(localized: "userLabel", defaultValue: "Usuário %@"),
-            name,
+            name
         )
     }
 
@@ -71,9 +71,9 @@ enum L10n {
         String(
             format: String(
                 localized: "avatarLabel",
-                defaultValue: "Foto de %@",
+                defaultValue: "Foto de %@"
             ),
-            name,
+            name
         )
     }
 
@@ -81,9 +81,9 @@ enum L10n {
         String(
             format: String(
                 localized: "resetLabel",
-                defaultValue: "Tente novamente em %@",
+                defaultValue: "Tente novamente em %@"
             ),
-            remaining,
+            remaining
         )
     }
 

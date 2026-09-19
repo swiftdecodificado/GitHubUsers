@@ -17,7 +17,7 @@ struct GitHubUsersApp: App {
 
             service = offline ? PreviewGitHubClient(
                 initialError: testState == "error",
-                detailRefreshError: testState == "detail-refresh-error",
+                detailRefreshError: testState == "detail-refresh-error"
             ) : GitHubClient()
             images = GitHubImageCache(offline: offline)
         #else

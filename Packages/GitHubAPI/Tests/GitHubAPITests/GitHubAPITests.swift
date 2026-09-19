@@ -7,7 +7,7 @@ import Testing
         id: 1,
         login: "mojombo",
         avatarURL: #require(URL(string: "https://avatars.githubusercontent.com/u/1?v=4")),
-        htmlURL: #require(URL(string: "https://github.com/mojombo")),
+        htmlURL: #require(URL(string: "https://github.com/mojombo"))
     )
 
     #expect(user.avatarURL(size: 200).absoluteString == "https://avatars.githubusercontent.com/u/1?v=4&s=200")
@@ -28,7 +28,7 @@ import Testing
         followers: 0,
         following: 0,
         createdAt: .now,
-        htmlURL: #require(URL(string: "https://github.com/mojombo")),
+        htmlURL: #require(URL(string: "https://github.com/mojombo"))
     )
 
     #expect(detail.avatarURL(size: 460).absoluteString == "https://avatars.githubusercontent.com/u/1?v=4&s=460")
@@ -49,7 +49,7 @@ import Testing
         followers: 0,
         following: 0,
         createdAt: .now,
-        htmlURL: #require(URL(string: "https://github.com/mojombo")),
+        htmlURL: #require(URL(string: "https://github.com/mojombo"))
     )
 
     #expect(detail.blogURL?.absoluteString == "https://github.com")
@@ -61,8 +61,8 @@ import Testing
     #expect(GitHubAPIError.map(URLError(.timedOut)) == .transport(.timedOut))
     #expect(
         GitHubAPIError.map(
-            DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "bad")),
-        ) == .decoding,
+            DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "bad"))
+        ) == .decoding
     )
 
     let error = GitHubAPIError.rateLimited(resetAt: Date(timeIntervalSince1970: 60))
@@ -87,7 +87,7 @@ private extension GitHubUserDetail {
             followers: followers,
             following: following,
             createdAt: createdAt,
-            htmlURL: htmlURL,
+            htmlURL: htmlURL
         )
     }
 }

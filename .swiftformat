@@ -1,0 +1,12 @@
+--rules indent,linebreaks,linebreakAtEndOfFile,consecutiveBlankLines,consecutiveSpaces,trailingSpace,spaceAroundBraces,spaceAroundBrackets,spaceAroundGenerics,spaceAroundOperators,spaceAroundParens,spaceInsideBraces,spaceInsideBrackets,spaceInsideGenerics,spaceInsideParens,braces,emptyBraces,elseOnSameLine,semicolons,trailingCommas,wrap,wrapArguments,wrapAttributes
+--swift-version 6.3
+--language-mode 6
+--indent 4
+--linebreaks lf
+--max-width 120
+--semicolons never
+--trailing-commas never
+--wrap-arguments before-first
+--wrap-parameters before-first
+--wrap-collections before-first
+--exclude **/.build/**,**/build/**,**/DerivedData/**,**/*.xcodeproj/**

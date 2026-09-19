@@ -10,14 +10,14 @@ final class URLProtocolStub: URLProtocol {
         var nonHTTP = false
     }
 
-    final class Registry: Sendable {
-        struct State {
-            var replies: [String: [Reply]] = [:]
-            var counts: [String: Int] = [:]
-            var requests: [String: [URLRequest]] = [:]
-        }
+    private struct RegistryState {
+        var replies: [String: [Reply]] = [:]
+        var counts: [String: Int] = [:]
+        var requests: [String: [URLRequest]] = [:]
+    }
 
-        private let state = OSAllocatedUnfairLock(initialState: State())
+    final class Registry: Sendable {
+        private let state = OSAllocatedUnfairLock(initialState: RegistryState())
 
         func register(_ replies: [Reply], host: String) {
             state.withLock {
@@ -50,11 +50,11 @@ final class URLProtocolStub: URLProtocol {
 
     static let registry = Registry()
 
-    override class func canInit(with _: URLRequest) -> Bool {
+    override static func canInit(with _: URLRequest) -> Bool {
         true
     }
 
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    override static func canonicalRequest(for request: URLRequest) -> URLRequest {
         request
     }
 
@@ -68,12 +68,12 @@ final class URLProtocolStub: URLProtocol {
 
         let response: URLResponse = reply.nonHTTP ? URLResponse(
             url: request.url!, mimeType: nil, expectedContentLength: reply.data.count,
-            textEncodingName: nil,
+            textEncodingName: nil
         ) : HTTPURLResponse(
             url: request.url!,
             statusCode: reply.status,
             httpVersion: nil,
-            headerFields: reply.headers,
+            headerFields: reply.headers
         )!
 
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
@@ -82,20 +82,6 @@ final class URLProtocolStub: URLProtocol {
     }
 
     override func stopLoading() {}
-
-    static func setup(_ replies: [Reply]) -> (URLSession, URLRequest, String) {
-        let host = UUID().uuidString.lowercased() + ".test"
-        registry.register(replies, host: host)
-
-        let configuration = URLSessionConfiguration.ephemeral
-        configuration.protocolClasses = [URLProtocolStub.self]
-
-        return (
-            URLSession(configuration: configuration),
-            URLRequest(url: URL(string: "https://" + host)!),
-            host,
-        )
-    }
 }
 
 struct StubServer {
@@ -104,7 +90,15 @@ struct StubServer {
     let host: String
 
     init(_ replies: [URLProtocolStub.Reply]) {
-        (session, request, host) = URLProtocolStub.setup(replies)
+        let host = UUID().uuidString.lowercased() + ".test"
+        URLProtocolStub.registry.register(replies, host: host)
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [URLProtocolStub.self]
+
+        self.session = URLSession(configuration: configuration)
+        self.request = URLRequest(url: URL(string: "https://" + host)!)
+        self.host = host
     }
 
     var count: Int {

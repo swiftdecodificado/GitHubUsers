@@ -45,7 +45,7 @@ public struct GitHubUserDetail: Decodable, Identifiable, Hashable, Sendable {
         followers: Int,
         following: Int,
         createdAt: Date,
-        htmlURL: URL,
+        htmlURL: URL
     ) {
         self.id = id
         self.login = login

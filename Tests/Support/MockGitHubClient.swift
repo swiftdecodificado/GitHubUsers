@@ -17,7 +17,7 @@ actor MockGitHubClient: GitHubClientProtocol {
 
     init(
         pages: [Result<[GitHubUser], GitHubAPIError>] = [],
-        details: [Result<GitHubUserDetail, GitHubAPIError>] = [],
+        details: [Result<GitHubUserDetail, GitHubAPIError>] = []
     ) {
         self.pages = pages
         self.details = details

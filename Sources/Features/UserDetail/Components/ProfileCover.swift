@@ -20,10 +20,10 @@ struct ProfileCover: View {
                         colors: [
                             .black.opacity(reduceTransparency ? 1 : 0.8),
                             .black.opacity(0.3),
-                            .black.opacity(0.65),
+                            .black.opacity(0.65)
                         ],
                         startPoint: .top,
-                        endPoint: .bottom,
+                        endPoint: .bottom
                     )
                 }
                 .drawingGroup()
@@ -40,7 +40,7 @@ struct ProfileCover: View {
         ProfileCover(
             url: GitHubUser.preview.avatarURL(size: 460),
             login: GitHubUser.preview.login,
-            offset: 0,
+            offset: 0
         )
         .frame(height: 240)
         .environment(\.imageCache, GitHubImageCache(offline: true))

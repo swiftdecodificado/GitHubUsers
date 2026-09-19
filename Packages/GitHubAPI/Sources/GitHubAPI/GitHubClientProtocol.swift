@@ -9,7 +9,7 @@
 public protocol GitHubClientProtocol: Sendable {
     func users(
         since: Int,
-        perPage: Int,
+        perPage: Int
     ) async throws -> [GitHubUser]
 
     func detail(login: String) async throws -> GitHubUserDetail
@@ -18,7 +18,7 @@ public protocol GitHubClientProtocol: Sendable {
 public extension GitHubClientProtocol {
     /// Consulta até 30 usuários com IDs maiores que `since`.
     func users(
-        since: Int = 0,
+        since: Int = 0
     ) async throws -> [GitHubUser] {
         try await users(since: since, perPage: 30)
     }

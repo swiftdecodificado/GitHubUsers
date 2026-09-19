@@ -92,14 +92,14 @@ final class UserDetailViewModel: ObservableObject {
             return [
                 .init(kind: .repositories, value: "0"),
                 .init(kind: .followers, value: "0"),
-                .init(kind: .following, value: "0"),
+                .init(kind: .following, value: "0")
             ]
         }
 
         return [
             .init(kind: .repositories, value: DisplayFormatter.count(detail.publicRepos)),
             .init(kind: .followers, value: DisplayFormatter.count(detail.followers)),
-            .init(kind: .following, value: DisplayFormatter.count(detail.following)),
+            .init(kind: .following, value: DisplayFormatter.count(detail.following))
         ]
     }
 
@@ -124,7 +124,7 @@ final class UserDetailViewModel: ObservableObject {
         append(
             .twitter,
             detail.twitterUsername,
-            url: detail.twitterUsername.flatMap { URL(string: "https://x.com/" + $0) },
+            url: detail.twitterUsername.flatMap { URL(string: "https://x.com/" + $0) }
         )
         append(.memberSince, detail.createdAt.formatted(.dateTime.month(.wide).year()))
 

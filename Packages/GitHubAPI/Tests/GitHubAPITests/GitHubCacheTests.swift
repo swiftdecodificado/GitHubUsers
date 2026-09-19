@@ -42,7 +42,7 @@ struct GitHubCacheTests {
 
     @Test func `images reject invalid content and oversized responses`() async throws {
         let invalidType = StubServer([
-            .init(status: 200, headers: ["Content-Type": "text/plain"], data: Data([1])),
+            .init(status: 200, headers: ["Content-Type": "text/plain"], data: Data([1]))
         ])
         let invalidTypeCache = GitHubImageCache(session: invalidType.session)
 
@@ -54,8 +54,8 @@ struct GitHubCacheTests {
             .init(
                 status: 200,
                 headers: ["Content-Length": String(20 * 1024 * 1024 + 1)],
-                data: Data([1]),
-            ),
+                data: Data([1])
+            )
         ])
         let oversizedCache = GitHubImageCache(session: oversized.session)
 
@@ -67,7 +67,7 @@ struct GitHubCacheTests {
     @Test func `images retry only transient transport failures`() async throws {
         let transient = StubServer([
             .init(status: 0, error: URLError(.timedOut)),
-            .init(status: 200, data: Data([1])),
+            .init(status: 200, data: Data([1]))
         ])
         let transientCache = GitHubImageCache(session: transient.session)
         #expect(try await transientCache.data(for: #require(transient.request.url)) == Data([1]))
@@ -75,7 +75,7 @@ struct GitHubCacheTests {
 
         let permanent = StubServer([
             .init(status: 0, error: URLError(.cannotFindHost)),
-            .init(status: 200, data: Data([1])),
+            .init(status: 200, data: Data([1]))
         ])
         let permanentCache = GitHubImageCache(session: permanent.session)
         await #expect(throws: GitHubAPIError.transport(.cannotFindHost)) {
@@ -89,7 +89,7 @@ struct GitHubCacheTests {
             id: 1,
             login: "mojombo",
             avatarURL: #require(URL(string: "https://avatars.githubusercontent.com/u/1?v=4")),
-            htmlURL: #require(URL(string: "https://github.com/mojombo")),
+            htmlURL: #require(URL(string: "https://github.com/mojombo"))
         )
         let detail = GitHubUserDetail(
             id: user.id,
@@ -105,7 +105,7 @@ struct GitHubCacheTests {
             followers: 0,
             following: 0,
             createdAt: .now,
-            htmlURL: user.htmlURL,
+            htmlURL: user.htmlURL
         )
 
         let cache = GitHubUserCache()

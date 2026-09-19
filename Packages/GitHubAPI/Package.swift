@@ -9,8 +9,8 @@ let package = Package(
         .target(name: "GitHubAPI"),
         .testTarget(
             name: "GitHubAPITests",
-            dependencies: ["GitHubAPI"],
-        ),
+            dependencies: ["GitHubAPI"]
+        )
     ],
-    swiftLanguageModes: [.v6],
+    swiftLanguageModes: [.v6]
 )

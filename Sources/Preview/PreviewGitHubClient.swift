@@ -32,7 +32,7 @@ import GitHubAPI
                     login: login,
                     name: name,
                     avatarURL: URL(string: "https://avatars.githubusercontent.com/u/\(id)?v=4")!,
-                    htmlURL: URL(string: "https://github.com/\(login)")!,
+                    htmlURL: URL(string: "https://github.com/\(login)")!
                 )
             }
         }
@@ -58,7 +58,7 @@ import GitHubAPI
                 followers: 23100,
                 following: 11,
                 createdAt: Date(timeIntervalSince1970: 1_192_857_859),
-                htmlURL: URL(string: "https://github.com/\(login)")!,
+                htmlURL: URL(string: "https://github.com/\(login)")!
             )
         }
     }

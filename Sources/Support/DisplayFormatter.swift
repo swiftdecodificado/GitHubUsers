@@ -10,7 +10,7 @@ enum DisplayFormatter {
         let formatted = (Double(value) / divisor).formatted(
             .number
                 .precision(.fractionLength(0 ... 1))
-                .locale(locale),
+                .locale(locale)
         )
 
         return formatted + (divisor == 1000 ? "k" : "M")

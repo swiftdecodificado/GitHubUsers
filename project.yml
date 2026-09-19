@@ -6,6 +6,8 @@ options:
     iOS: '17.0'
   createIntermediateGroups: true
 fileGroups:
+  - .swiftformat
+  - .swiftlint.yml
   - Config/App.xcconfig
   - Config/Project.xcconfig
   - Config/Signing.xcconfig.example

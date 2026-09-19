@@ -12,6 +12,12 @@ final class UsersListViewModel: ObservableObject {
         case failed(GitHubAPIError)
     }
 
+    private struct LoadResult {
+        let users: [GitHubUser]
+        let nextCursor: Int
+        let lastPageCount: Int
+    }
+
     private enum LoadReason: Equatable {
         case firstPage
         case pullToRefresh
@@ -159,11 +165,7 @@ final class UsersListViewModel: ObservableObject {
         }
     }
 
-    private func loadUsers(for reason: LoadReason, replacing existing: [GitHubUser]) async throws -> (
-        users: [GitHubUser],
-        nextCursor: Int,
-        lastPageCount: Int,
-    ) {
+    private func loadUsers(for reason: LoadReason, replacing existing: [GitHubUser]) async throws -> LoadResult {
         var page = try await cachedUsers(since: 0, forceRefresh: reason.forceRefresh)
         var combined = page
         var nextCursor = page.map(\.id).max() ?? 0
@@ -183,7 +185,7 @@ final class UsersListViewModel: ObservableObject {
         var ids = Set<Int>()
         let unique = combined.filter { ids.insert($0.id).inserted }
 
-        return (users: unique, nextCursor: nextCursor, lastPageCount: page.count)
+        return LoadResult(users: unique, nextCursor: nextCursor, lastPageCount: page.count)
     }
 
     private func cachedUsers(since: Int, forceRefresh: Bool) async throws -> [GitHubUser] {

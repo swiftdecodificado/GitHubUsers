@@ -11,8 +11,7 @@ public struct GitHubUser:
     Decodable,
     Identifiable,
     Hashable,
-    Sendable
-{
+    Sendable {
     public let id: Int
     public let login: String
     public let name: String?
@@ -31,7 +30,7 @@ public struct GitHubUser:
         login: String,
         name: String? = nil,
         avatarURL: URL,
-        htmlURL: URL,
+        htmlURL: URL
     ) {
         self.id = id
         self.login = login

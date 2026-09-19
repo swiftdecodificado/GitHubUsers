@@ -22,21 +22,21 @@ let package = Package(
                 "Features/UsersList/Components",
                 "Features/UsersList/UsersListView.swift",
                 "Features/UserDetail/Components",
-                "Features/UserDetail/UserDetailView.swift",
+                "Features/UserDetail/UserDetailView.swift"
             ],
             sources: [
                 "Support",
                 "Features/UsersList/UserPresentation.swift",
                 "Features/UsersList/UsersListViewModel.swift",
-                "Features/UserDetail/UserDetailViewModel.swift",
-            ],
+                "Features/UserDetail/UserDetailViewModel.swift"
+            ]
         ),
         .testTarget(
             name: "GitHubUsersTests",
             dependencies: ["GitHubUsers", .product(name: "GitHubAPI", package: "GitHubAPI")],
             path: "Tests",
-            resources: [.process("Fixtures")],
-        ),
+            resources: [.process("Fixtures")]
+        )
     ],
-    swiftLanguageModes: [.v6],
+    swiftLanguageModes: [.v6]
 )

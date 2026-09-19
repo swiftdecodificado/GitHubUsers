@@ -16,10 +16,10 @@ public struct GitHubClient: GitHubClientProtocol {
     public init(
         session: URLSession = .shared,
         baseURL: URL = URL(
-            string: "https://api.github.com",
+            string: "https://api.github.com"
         )!,
         token: String? = nil,
-        timeout: TimeInterval = 15,
+        timeout: TimeInterval = 15
     ) {
         self.session = session
         self.baseURL = baseURL
@@ -29,33 +29,33 @@ public struct GitHubClient: GitHubClientProtocol {
 
     public func users(
         since: Int,
-        perPage: Int,
+        perPage: Int
     ) async throws -> [GitHubUser] {
         try await fetch(
             [GitHubUser].self,
             endpoint:
             .users(
                 since: since,
-                perPage: perPage,
-            ),
+                perPage: perPage
+            )
         )
     }
 
     public func detail(
-        login: String,
+        login: String
     ) async throws -> GitHubUserDetail {
         try await fetch(
             GitHubUserDetail.self,
             endpoint:
             .detail(
-                login: login,
-            ),
+                login: login
+            )
         )
     }
 
     private func fetch<Value: Decodable & Sendable>(
         _ type: Value.Type,
-        endpoint: GitHubEndpoint,
+        endpoint: GitHubEndpoint
     ) async throws -> Value {
         try Task
             .checkCancellation()
@@ -63,42 +63,42 @@ public struct GitHubClient: GitHubClientProtocol {
         let request = try endpoint.request(
             baseURL: baseURL,
             token: token,
-            timeout: timeout,
+            timeout: timeout
         )
 
         let (
             data,
-            response,
+            response
         ) = try await sendWithRetry(
-            request,
+            request
         )
 
         try Task
             .checkCancellation()
         try validateResponse(
             response,
-            data: data,
+            data: data
         )
 
         return try decode(
             type,
-            from: data,
+            from: data
         )
     }
 
     private func sendWithRetry(
-        _ request: URLRequest,
+        _ request: URLRequest
     ) async throws -> (
         Data,
-        URLResponse,
+        URLResponse
     ) {
         do {
             return try await send(
-                request,
+                request
             )
         } catch let error as GitHubAPIError {
             guard shouldRetry(
-                error,
+                error
             ) else {
                 throw error
             }
@@ -106,20 +106,20 @@ public struct GitHubClient: GitHubClientProtocol {
             try await Task
                 .sleep(
                     for: .milliseconds(
-                        250,
-                    ),
+                        250
+                    )
                 )
             return try await send(
-                request,
+                request
             )
         }
     }
 
     private func send(
-        _ request: URLRequest,
+        _ request: URLRequest
     ) async throws -> (
         Data,
-        URLResponse,
+        URLResponse
     ) {
         try Task
             .checkCancellation()
@@ -127,15 +127,14 @@ public struct GitHubClient: GitHubClientProtocol {
         do {
             return try await session
                 .data(
-                    for: request,
+                    for: request
                 )
         } catch {
             if error is CancellationError
                 || Task.isCancelled
                 || (
                     error as? URLError
-                )?.code == .cancelled
-            {
+                )?.code == .cancelled {
                 throw CancellationError()
             }
 
@@ -145,16 +144,16 @@ public struct GitHubClient: GitHubClientProtocol {
 
             throw GitHubAPIError
                 .transport(
-                    urlError.code,
+                    urlError.code
                 )
         }
     }
 
     private func shouldRetry(
-        _ error: GitHubAPIError,
+        _ error: GitHubAPIError
     ) -> Bool {
         guard case let .transport(
-            code,
+            code
         ) = error else {
             return false
         }
@@ -170,7 +169,7 @@ public struct GitHubClient: GitHubClientProtocol {
 
     private func validateResponse(
         _ response: URLResponse,
-        data: Data,
+        data: Data
     ) throws {
         guard let response = response as? HTTPURLResponse else {
             throw GitHubAPIError.invalidResponse
@@ -186,32 +185,32 @@ public struct GitHubClient: GitHubClientProtocol {
             response.statusCode,
             reset: response
                 .value(
-                    forHTTPHeaderField: "x-ratelimit-reset",
+                    forHTTPHeaderField: "x-ratelimit-reset"
                 ),
             retryAfter: response
                 .value(
-                    forHTTPHeaderField: "retry-after",
+                    forHTTPHeaderField: "retry-after"
                 ),
             remaining: response
                 .value(
-                    forHTTPHeaderField: "x-ratelimit-remaining",
+                    forHTTPHeaderField: "x-ratelimit-remaining"
                 ),
-            message: message,
+            message: message
         ) {
             throw error
         }
     }
 
     private static let decoder: JSONDecoder = {
-        let d = JSONDecoder()
-        d.keyDecodingStrategy = .convertFromSnakeCase
-        d.dateDecodingStrategy = .iso8601
-        return d
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
     }()
 
     private func decode<Value: Decodable>(
         _ type: Value.Type,
-        from data: Data,
+        from data: Data
     ) throws -> Value {
         do {
             return try Self.decoder.decode(type, from: data)

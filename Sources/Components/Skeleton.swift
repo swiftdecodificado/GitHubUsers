@@ -13,7 +13,7 @@ struct Skeleton: View {
                         LinearGradient(
                             colors: [.clear, .primary.opacity(0.08), .clear],
                             startPoint: .leading,
-                            endPoint: .trailing,
+                            endPoint: .trailing
                         )
                         .offset(x: animating ? geometry.size.width : -geometry.size.width)
                         .animation(.linear(duration: 1.3).repeatForever(autoreverses: false), value: animating)

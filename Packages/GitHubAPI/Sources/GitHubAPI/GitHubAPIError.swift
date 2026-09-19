@@ -27,7 +27,7 @@ extension GitHubAPIError {
         retryAfter: String? = nil,
         remaining: String? = nil,
         message: String? = nil,
-        now: Date = .now,
+        now: Date = .now
     ) -> GitHubAPIError? {
         switch code {
         case 200 ... 299:
@@ -41,7 +41,7 @@ extension GitHubAPIError {
                 indicatesRateLimit(
                     remaining: remaining,
                     retryAfter: retryAfter,
-                    message: message,
+                    message: message
                 )
             else {
                 return .forbidden
@@ -51,8 +51,8 @@ extension GitHubAPIError {
                 resetAt: rateLimitResetDate(
                     resetHeader: reset,
                     retryAfter: retryAfter,
-                    now: now,
-                ),
+                    now: now
+                )
             )
 
         case 404:
@@ -63,8 +63,8 @@ extension GitHubAPIError {
                 resetAt: rateLimitResetDate(
                     resetHeader: reset,
                     retryAfter: retryAfter,
-                    now: now,
-                ),
+                    now: now
+                )
             )
 
         default:
@@ -75,7 +75,7 @@ extension GitHubAPIError {
     private static func indicatesRateLimit(
         remaining: String?,
         retryAfter: String?,
-        message: String?,
+        message: String?
     ) -> Bool {
         if remaining == "0" || retryAfter != nil {
             return true
@@ -92,17 +92,15 @@ extension GitHubAPIError {
     private static func rateLimitResetDate(
         resetHeader: String?,
         retryAfter: String?,
-        now: Date,
+        now: Date
     ) -> Date {
         if let delay = nonNegativeFiniteNumber(retryAfter),
-           delay <= Date.distantFuture.timeIntervalSince(now)
-        {
+           delay <= Date.distantFuture.timeIntervalSince(now) {
             return now.addingTimeInterval(delay)
         }
 
         if let timestamp = nonNegativeFiniteNumber(resetHeader),
-           timestamp <= Date.distantFuture.timeIntervalSince1970
-        {
+           timestamp <= Date.distantFuture.timeIntervalSince1970 {
             let resetDate = Date(timeIntervalSince1970: timestamp)
             return max(now, resetDate)
         }
@@ -112,7 +110,7 @@ extension GitHubAPIError {
     }
 
     private static func nonNegativeFiniteNumber(
-        _ value: String?,
+        _ value: String?
     ) -> Double? {
         guard let value,
               let number = Double(value),

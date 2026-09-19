@@ -55,7 +55,7 @@ struct ProfileStats: View {
         ProfileStats(stats: [
             .init(kind: .repositories, value: "100"),
             .init(kind: .followers, value: "23.1K"),
-            .init(kind: .following, value: "11"),
+            .init(kind: .following, value: "11")
         ])
         .padding()
     }

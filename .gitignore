@@ -1,10 +1,46 @@
+# Metadados locais do macOS
 .DS_Store
+._*
+
+# Builds e caches do Xcode e Swift Package Manager
 .build/
-**/.swiftpm/xcode/
+build/
 DerivedData/
-*.xcuserstate
+**/.swiftpm/xcode/
+**/.swiftpm/configuration/registries.json
+
+# Preferências e estado do usuário no Xcode
 xcuserdata/
-*.xcresult
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+
+# Resultados de testes, cobertura e logs de build
+*.xcresult/
+*.xcactivitylog
+*.profraw
+*.profdata
 .build-logs/
+
+# Aplicativos compilados, archives e símbolos de depuração
+*.app/
+*.ipa
+*.xcarchive/
+*.dSYM/
+*.dSYM.zip
 Delivery/
-Config/Signing.xcconfig
+
+# Assinatura e credenciais locais
+/Config/Signing.xcconfig
+*.p12
+*.p8
+*.mobileprovision
+*.provisionprofile
+*.keychain
+*.keychain-db
+.netrc
+
+*.swp
+*.swo
+*~

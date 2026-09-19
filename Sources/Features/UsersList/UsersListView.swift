@@ -2,7 +2,7 @@ import GitHubAPI
 import SwiftUI
 
 struct UsersListView: View {
-    @ObservedObject var vm: UsersListViewModel
+    @ObservedObject var viewModel: UsersListViewModel
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -13,7 +13,7 @@ struct UsersListView: View {
             let columns = columnCount(for: geometry.size.width)
 
             ScrollView {
-                switch vm.state {
+                switch viewModel.state {
                 case .idle, .loading:
                     UserListSkeleton(layout: layout, columns: columns)
 
@@ -21,48 +21,48 @@ struct UsersListView: View {
                     EmptyState(title: L10n.emptyUsers, symbol: "person.2")
 
                 case let .failed(error):
-                    ErrorState(error: error, retry: vm.retry)
+                    ErrorState(error: error, retry: viewModel.retry)
 
                 case .loaded:
-                    if vm.isSearchEmpty {
+                    if viewModel.isSearchEmpty {
                         EmptyState(title: L10n.emptySearch, symbol: "magnifyingglass")
                     } else {
                         UserCollection(
-                            users: vm.filteredUsers,
+                            users: viewModel.filteredUsers,
                             layout: layout,
                             columns: columns,
-                            paginationEnabled: vm.query.isEmpty,
-                            loadNextPageIfNeeded: vm.loadNextPageIfNeeded,
+                            paginationEnabled: viewModel.query.isEmpty,
+                            loadNextPageIfNeeded: viewModel.loadNextPageIfNeeded
                         )
 
                         PaginationFooter(
-                            isLoadingNextPage: vm.isLoadingNextPage,
-                            paginationError: vm.paginationError,
-                            refreshError: vm.refreshError,
-                            retryPagination: vm.retryPagination,
-                            retryRefresh: vm.refresh,
+                            isLoadingNextPage: viewModel.isLoadingNextPage,
+                            paginationError: viewModel.paginationError,
+                            refreshError: viewModel.refreshError,
+                            retryPagination: viewModel.retryPagination,
+                            retryRefresh: viewModel.refresh
                         )
                     }
                 }
             }
             .padding(.horizontal, 16)
-            .refreshable { await vm.refresh() }
+            .refreshable { await viewModel.refresh() }
             .accessibilityIdentifier(layout == .grid ? "usersGrid" : "usersList")
             .accessibilityValue(String(columns))
         }
         .navigationTitle(L10n.users)
         .navigationBarTitleDisplayMode(.large)
         .searchable(
-            text: $vm.query,
+            text: $viewModel.query,
             placement: .navigationBarDrawer(displayMode: .always),
-            prompt: L10n.search,
+            prompt: L10n.search
         )
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 layoutToggle
             }
         }
-        .task { await vm.onAppear() }
+        .task { await viewModel.onAppear() }
     }
 
     private func columnCount(for width: CGFloat) -> Int {
@@ -92,7 +92,7 @@ struct UsersListView: View {
 #if DEBUG
     #Preview("Users") {
         NavigationStack {
-            UsersListView(vm: UsersListViewModel(service: PreviewGitHubClient()))
+            UsersListView(viewModel: UsersListViewModel(service: PreviewGitHubClient()))
         }
         .environment(\.imageCache, GitHubImageCache(offline: true))
     }

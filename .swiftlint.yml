@@ -1,0 +1,8 @@
+included:
+  - Sources
+  - Tests
+  - UITests
+  - Package.swift
+  - Packages/GitHubAPI/Sources
+  - Packages/GitHubAPI/Tests
+  - Packages/GitHubAPI/Package.swift

@@ -14,15 +14,14 @@ public extension URLSession {
 
                 if retryOnURLError,
                    let code = (error as? URLError)?.code,
-                   code == .timedOut || code == .networkConnectionLost
-                {
+                   code == .timedOut || code == .networkConnectionLost {
                     try Task.checkCancellation()
                     try await Task.sleep(for: .milliseconds(250))
                     return try await send(retryOnURLError: false)
                 }
 
                 throw GitHubAPIError.transport(
-                    (error as? URLError)?.code ?? .unknown,
+                    (error as? URLError)?.code ?? .unknown
                 )
             }
         }
@@ -39,22 +38,20 @@ public extension URLSession {
             reset: response.value(forHTTPHeaderField: "x-ratelimit-reset"),
             retryAfter: response.value(forHTTPHeaderField: "retry-after"),
             remaining: response.value(
-                forHTTPHeaderField: "x-ratelimit-remaining",
-            ),
+                forHTTPHeaderField: "x-ratelimit-remaining"
+            )
         ) {
             throw error
         }
 
         if let contentType = response.value(forHTTPHeaderField: "Content-Type")?.lowercased(),
-           !contentType.hasPrefix("image/")
-        {
+           !contentType.hasPrefix("image/") {
             throw GitHubAPIError.invalidResponse
         }
 
         if response.expectedContentLength > maximumResponseBytes
             || data.count > maximumResponseBytes
-            || data.isEmpty
-        {
+            || data.isEmpty {
             throw GitHubAPIError.invalidResponse
         }
 

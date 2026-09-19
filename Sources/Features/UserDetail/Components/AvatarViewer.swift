@@ -20,7 +20,7 @@ struct AvatarViewer: View {
                 RemoteImage(url: url, name: login)
                     .frame(
                         width: min(geometry.size.width, geometry.size.height),
-                        height: min(geometry.size.width, geometry.size.height),
+                        height: min(geometry.size.width, geometry.size.height)
                     )
                     .matchedGeometryEffect(id: "viewerAvatar", in: namespace)
                     .scaleEffect(reduceMotion ? 1 : max(0.65, 1 - abs(displacement.height) / 1000))
@@ -72,7 +72,7 @@ struct AvatarViewer: View {
                 url: GitHubUser.preview.avatarURL(size: 460),
                 login: GitHubUser.preview.login,
                 namespace: namespace,
-                dismiss: {},
+                dismiss: {}
             )
             .environment(\.imageCache, GitHubImageCache(offline: true))
         }

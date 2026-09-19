@@ -83,7 +83,7 @@ struct ProfileInfo: View {
             .init(kind: .location, value: "San Francisco", url: nil),
             .init(kind: .blog, value: "https://github.com", url: URL(string: "https://github.com")),
             .init(kind: .twitter, value: "mojombo", url: URL(string: "https://x.com/mojombo")),
-            .init(kind: .memberSince, value: "October 2007", url: nil),
+            .init(kind: .memberSince, value: "October 2007", url: nil)
         ])
         .padding()
     }

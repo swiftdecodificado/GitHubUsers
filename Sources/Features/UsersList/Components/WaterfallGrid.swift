@@ -27,7 +27,7 @@ struct WaterfallGrid: Layout {
                 x: CGFloat(column) * (cellWidth + spacing),
                 y: heights[column],
                 width: cellWidth,
-                height: height,
+                height: height
             )
 
             heights[column] += height + spacing
@@ -43,7 +43,7 @@ struct WaterfallGrid: Layout {
             _ = sizeThatFits(
                 proposal: ProposedViewSize(width: bounds.width, height: nil),
                 subviews: subviews,
-                cache: &cache,
+                cache: &cache
             )
         }
 
@@ -53,7 +53,7 @@ struct WaterfallGrid: Layout {
             subview.place(
                 at: CGPoint(x: bounds.minX + frame.minX, y: bounds.minY + frame.minY),
                 anchor: .topLeading,
-                proposal: ProposedViewSize(frame.size),
+                proposal: ProposedViewSize(frame.size)
             )
         }
     }

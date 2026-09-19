@@ -36,7 +36,7 @@ public actor GitHubImageCache {
         directory: URL = URL.cachesDirectory.appending(path: "GitHubAPI/avatars"),
         maxDiskBytes: Int = 100 * 1024 * 1024,
         ttl: TimeInterval = 7 * 86400,
-        now: @escaping @Sendable () -> Date = { .now },
+        now: @escaping @Sendable () -> Date = { .now }
     ) {
         self.session = session
         self.offline = offline
@@ -70,17 +70,8 @@ public actor GitHubImageCache {
         let filename = SHA256.hash(data: Data(url.absoluteString.utf8))
             .map { String(format: "%02x", $0) }.joined()
         let file = directory.appending(path: filename)
-        if let entry = diskEntries[filename] {
-            if entry.modified.addingTimeInterval(ttl) > date,
-               let data = try? Data(contentsOf: file)
-            {
-                memory.setObject(
-                    MemoryEntry(data: data, expiry: entry.modified.addingTimeInterval(ttl)),
-                    forKey: url as NSURL, cost: data.count,
-                )
-                return data
-            }
-            removeDiskEntry(file)
+        if let data = cachedDiskData(at: file, for: url, date: date) {
+            return data
         }
 
         let session = session
@@ -104,20 +95,38 @@ public actor GitHubImageCache {
         let fetchedAt = now()
         memory.setObject(
             MemoryEntry(data: data, expiry: fetchedAt.addingTimeInterval(ttl)),
-            forKey: url as NSURL, cost: data.count,
+            forKey: url as NSURL, cost: data.count
         )
         storeOnDisk(data, at: file, date: fetchedAt)
         try Task.checkCancellation()
         return data
     }
 
+    private func cachedDiskData(at file: URL, for url: URL, date: Date) -> Data? {
+        guard let entry = diskEntries[file.lastPathComponent] else { return nil }
+        guard entry.modified.addingTimeInterval(ttl) > date,
+              let data = try? Data(contentsOf: file) else {
+            removeDiskEntry(file)
+            return nil
+        }
+        memory.setObject(
+            MemoryEntry(data: data, expiry: entry.modified.addingTimeInterval(ttl)),
+            forKey: url as NSURL, cost: data.count
+        )
+        return data
+    }
+
     private func prepareDisk(at date: Date) {
         if !indexedDisk {
             indexedDisk = true
-            let keys: Set<URLResourceKey> = [.isRegularFileKey, .isSymbolicLinkKey,
-                                             .fileSizeKey, .contentModificationDateKey]
+            let keys: Set<URLResourceKey> = [
+                .isRegularFileKey,
+                .isSymbolicLinkKey,
+                .fileSizeKey,
+                .contentModificationDateKey
+            ]
             let files = (try? FileManager.default.contentsOfDirectory(
-                at: directory, includingPropertiesForKeys: Array(keys),
+                at: directory, includingPropertiesForKeys: Array(keys)
             )) ?? []
             for file in files {
                 let name = file.lastPathComponent

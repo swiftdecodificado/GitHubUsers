@@ -45,7 +45,8 @@ final class GitHubUsersUITests: XCTestCase {
             app.swipeDown()
         }
         XCTAssertTrue(search.waitForExistence(timeout: 5))
-        search.tap(); search.typeText("mojo")
+        search.tap()
+        search.typeText("mojo")
         XCTAssertTrue(app.buttons["user-1"].exists)
         XCTAssertFalse(app.buttons["user-2"].exists)
         search.buttons.firstMatch.tap()
@@ -71,7 +72,8 @@ final class GitHubUsersUITests: XCTestCase {
     @MainActor func testOfflineErrorRetry() {
         let app = launch(state: "error")
         let retry = app.buttons["retry"]
-        XCTAssertTrue(retry.waitForExistence(timeout: 10)); XCTAssertTrue(retry.isEnabled)
+        XCTAssertTrue(retry.waitForExistence(timeout: 10))
+        XCTAssertTrue(retry.isEnabled)
         retry.tap()
         XCTAssertTrue(app.buttons["user-1"].waitForExistence(timeout: 5))
     }

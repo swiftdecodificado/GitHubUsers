@@ -47,7 +47,7 @@ struct RemoteImage: View {
                     guard let image = await Self.decodeThumbnail(
                         data,
                         targetSize: geometry.size,
-                        displayScale: displayScale,
+                        displayScale: displayScale
                     ) else {
                         return
                     }
@@ -64,7 +64,7 @@ struct RemoteImage: View {
     private static func decodeThumbnail(
         _ data: Data,
         targetSize: CGSize,
-        displayScale: CGFloat,
+        displayScale: CGFloat
     ) async -> CGImage? {
         let task = Task<CGImage?, Never>.detached(priority: .utility) {
             guard !Task.isCancelled,
@@ -75,13 +75,13 @@ struct RemoteImage: View {
 
             let maximumPixelSize = max(
                 1,
-                Int(ceil(max(targetSize.width, targetSize.height) * displayScale)),
+                Int(ceil(max(targetSize.width, targetSize.height) * displayScale))
             )
             let options: [CFString: Any] = [
                 kCGImageSourceCreateThumbnailFromImageAlways: true,
                 kCGImageSourceCreateThumbnailWithTransform: true,
                 kCGImageSourceThumbnailMaxPixelSize: maximumPixelSize,
-                kCGImageSourceShouldCacheImmediately: true,
+                kCGImageSourceShouldCacheImmediately: true
             ]
 
             guard !Task.isCancelled else {

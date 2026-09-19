@@ -19,7 +19,7 @@ struct ProfileHeader: View {
                     GeometryReader { geometry in
                         Color.clear.preference(
                             key: DetailOffsetKey.self,
-                            value: geometry.frame(in: .named("detailScroll")).minY,
+                            value: geometry.frame(in: .named("detailScroll")).minY
                         )
                     }
                 }
@@ -79,7 +79,7 @@ struct DetailOffsetKey: PreferenceKey {
                 offset: 0,
                 isAvatarOpen: false,
                 namespace: namespace,
-                openAvatar: {},
+                openAvatar: {}
             )
         }
     }

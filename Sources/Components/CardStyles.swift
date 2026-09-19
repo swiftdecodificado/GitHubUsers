@@ -8,7 +8,7 @@ struct CardPressStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
             .animation(
                 reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.7),
-                value: configuration.isPressed,
+                value: configuration.isPressed
             )
     }
 }

@@ -3,17 +3,46 @@ import Foundation
 import Testing
 
 struct GitHubClientTests {
-    private let listJSON = Data(#"[{"id":42,"login":"someone","avatar_url":"https://example.test/avatar","html_url":"https://example.test/someone"}]"#.utf8)
-    private let detailJSON = Data(#"{"id":42,"login":"someone","avatar_url":"https://example.test/avatar","html_url":"https://example.test/someone","name":"Some One","bio":null,"public_repos":3,"followers":4,"following":5,"created_at":"2020-01-01T00:00:00Z"}"#.utf8)
+    private let listJSON = Data(
+        #"""
+        [{
+            "id": 42,
+            "login": "someone",
+            "avatar_url": "https://example.test/avatar",
+            "html_url": "https://example.test/someone"
+        }]
+        """#.utf8
+    )
+    private let detailJSON = Data(
+        #"""
+        {
+            "id": 42,
+            "login": "someone",
+            "avatar_url": "https://example.test/avatar",
+            "html_url": "https://example.test/someone",
+            "name": "Some One",
+            "bio": null,
+            "public_repos": 3,
+            "followers": 4,
+            "following": 5,
+            "created_at": "2020-01-01T00:00:00Z"
+        }
+        """#.utf8
+    )
 
     @Test func `list request and decoding`() async throws {
         let server = StubServer([.init(status: 200, data: listJSON)])
-        let client = try GitHubClient(session: server.session, baseURL: #require(server.request.url), token: "test-token", timeout: 9)
+        let client = try GitHubClient(
+            session: server.session,
+            baseURL: #require(server.request.url),
+            token: "test-token",
+            timeout: 9
+        )
         let users = try await client.users(since: 41, perPage: 12)
         let request = try #require(server.requests.first)
         #expect(request.url?.path == "/users")
         #expect(try URLComponents(url: #require(request.url), resolvingAgainstBaseURL: false)?.queryItems == [
-            URLQueryItem(name: "since", value: "41"), URLQueryItem(name: "per_page", value: "12"),
+            URLQueryItem(name: "since", value: "41"), URLQueryItem(name: "per_page", value: "12")
         ])
         #expect(request.httpMethod == "GET")
         #expect(request.value(forHTTPHeaderField: "Accept") == "application/vnd.github+json")
@@ -32,7 +61,10 @@ struct GitHubClientTests {
 
     @Test func `detail uses login and decodes optional fields`() async throws {
         let server = StubServer([.init(status: 200, data: detailJSON)])
-        let client = try GitHubClient(session: server.session, baseURL: #require(server.request.url?.appending(path: "api/v3/")))
+        let client = try GitHubClient(
+            session: server.session,
+            baseURL: #require(server.request.url?.appending(path: "api/v3/"))
+        )
         let detail = try await client.detail(login: "someone")
         #expect(server.requests.first?.url?.path == "/api/v3/users/someone")
         #expect(server.requests.first?.url?.query == nil)
@@ -54,13 +86,20 @@ struct GitHubClientTests {
         let client = try GitHubClient(session: server.session, baseURL: #require(server.request.url))
         #expect(try await client.users().isEmpty)
         #expect(server.requests.first?.url?.query == "since=0&per_page=30")
-        for endpoint in [GitHubEndpoint.users(since: -1), .users(since: 0, perPage: 101),
-                         .users(since: 0, perPage: 0), .detail(login: ""), .detail(login: "a/b")]
-        {
+        for endpoint in [
+            GitHubEndpoint.users(since: -1),
+            .users(since: 0, perPage: 101),
+            .users(since: 0, perPage: 0),
+            .detail(login: ""),
+            .detail(login: "a/b")
+        ] {
             #expect(throws: GitHubAPIError.invalidInput) { try endpoint.request() }
         }
         #expect(throws: GitHubAPIError.invalidBaseURL) {
-            try GitHubEndpoint.users(since: 0).request(baseURL: #require(URL(string: "http://example.test")), token: "token")
+            try GitHubEndpoint.users(since: 0).request(
+                baseURL: #require(URL(string: "http://example.test")),
+                token: "token"
+            )
         }
         #expect(throws: GitHubAPIError.invalidInput) {
             try GitHubEndpoint.users(since: 0).request(token: "bad\ntoken")
@@ -80,9 +119,10 @@ struct GitHubClientTests {
     }
 
     @Test func `invalid response and decoding do not retry`() async throws {
-        for reply in [URLProtocolStub.Reply(status: 200, data: Data("bad json".utf8)),
-                      .init(status: 200, data: listJSON, nonHTTP: true)]
-        {
+        for reply in [
+            URLProtocolStub.Reply(status: 200, data: Data("bad json".utf8)),
+            .init(status: 200, data: listJSON, nonHTTP: true)
+        ] {
             let server = StubServer([reply])
             let client = try GitHubClient(session: server.session, baseURL: #require(server.request.url))
             await #expect(throws: reply.nonHTTP ? GitHubAPIError.invalidResponse : .decoding) {
@@ -96,7 +136,7 @@ struct GitHubClientTests {
     func `rate limit uses reset header without retry`(status: Int) async throws {
         let reset = Date(timeIntervalSince1970: 4_102_444_800)
         let server = StubServer([.init(status: status, headers: [
-            "x-ratelimit-remaining": "0", "x-ratelimit-reset": "4102444800",
+            "x-ratelimit-remaining": "0", "x-ratelimit-reset": "4102444800"
         ])])
         let client = try GitHubClient(session: server.session, baseURL: #require(server.request.url))
         await #expect(throws: GitHubAPIError.rateLimited(resetAt: reset)) { try await client.users() }
@@ -104,8 +144,11 @@ struct GitHubClientTests {
     }
 
     @Test func `secondary limit message is recognized`() async throws {
-        let server = StubServer([.init(status: 403, headers: ["x-ratelimit-reset": "4102444800"],
-                                       data: Data(#"{"message":"You have exceeded a secondary rate limit."}"#.utf8))])
+        let server = StubServer([.init(
+            status: 403,
+            headers: ["x-ratelimit-reset": "4102444800"],
+            data: Data(#"{"message":"You have exceeded a secondary rate limit."}"#.utf8)
+        )])
         let client = try GitHubClient(session: server.session, baseURL: #require(server.request.url))
         await #expect(throws: GitHubAPIError.rateLimited(resetAt: Date(timeIntervalSince1970: 4_102_444_800))) {
             try await client.users()
@@ -116,13 +159,20 @@ struct GitHubClientTests {
     @Test func `retry deadlines and fallback`() {
         let now = Date(timeIntervalSince1970: 1000)
         #expect(GitHubAPIError.status(403, reset: "2000", now: now) == .forbidden)
-        #expect(GitHubAPIError.status(403, retryAfter: "12", now: now) == .rateLimited(resetAt: now.addingTimeInterval(12)))
-        #expect(GitHubAPIError.status(429, reset: "2000", retryAfter: "12", now: now) == .rateLimited(resetAt: now.addingTimeInterval(12)))
+        #expect(GitHubAPIError
+            .status(403, retryAfter: "12", now: now) == .rateLimited(resetAt: now.addingTimeInterval(12)))
+        #expect(GitHubAPIError
+            .status(429, reset: "2000", retryAfter: "12", now: now) ==
+            .rateLimited(resetAt: now.addingTimeInterval(12)))
         #expect(GitHubAPIError.status(429, reset: "900", now: now) == .rateLimited(resetAt: now))
         for header in [nil, "bad", "nan", "inf", "-1"] as [String?] {
-            #expect(GitHubAPIError.status(429, reset: header, retryAfter: header, now: now) == .rateLimited(resetAt: now.addingTimeInterval(60)))
+            #expect(GitHubAPIError
+                .status(429, reset: header, retryAfter: header, now: now) ==
+                .rateLimited(resetAt: now.addingTimeInterval(60)))
         }
-        #expect(GitHubAPIError.status(403, message: "Abuse detection mechanism", now: now) == .rateLimited(resetAt: now.addingTimeInterval(60)))
+        #expect(GitHubAPIError
+            .status(403, message: "Abuse detection mechanism", now: now) ==
+            .rateLimited(resetAt: now.addingTimeInterval(60)))
     }
 
     @Test(arguments: [URLError.Code.timedOut, .networkConnectionLost])

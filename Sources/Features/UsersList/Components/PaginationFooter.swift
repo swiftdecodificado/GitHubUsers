@@ -33,7 +33,7 @@ struct PaginationFooter: View {
             paginationError: nil,
             refreshError: nil,
             retryPagination: {},
-            retryRefresh: {},
+            retryRefresh: {}
         )
         .padding()
     }
@@ -44,7 +44,7 @@ struct PaginationFooter: View {
             paginationError: .network,
             refreshError: nil,
             retryPagination: {},
-            retryRefresh: {},
+            retryRefresh: {}
         )
         .padding()
     }

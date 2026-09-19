@@ -2,7 +2,7 @@ import GitHubAPI
 import SwiftUI
 
 struct UserDetailView: View {
-    @StateObject private var vm: UserDetailViewModel
+    @StateObject private var viewModel: UserDetailViewModel
     @Namespace private var viewerNamespace
     @State private var showingAvatar = false
 
@@ -12,7 +12,7 @@ struct UserDetailView: View {
     @State private var offset: CGFloat = 0
 
     init(user: GitHubUser, service: any GitHubClientProtocol, cache: GitHubUserCache = GitHubUserCache()) {
-        _vm = StateObject(wrappedValue: UserDetailViewModel(user: user, service: service, cache: cache))
+        _viewModel = StateObject(wrappedValue: UserDetailViewModel(user: user, service: service, cache: cache))
     }
 
     private var collapse: CGFloat {
@@ -25,9 +25,14 @@ struct UserDetailView: View {
                 .accessibilityHidden(showingAvatar)
 
             if showingAvatar {
-                AvatarViewer(url: vm.avatarURL, login: vm.login, namespace: viewerNamespace, dismiss: closeAvatar)
-                    .zIndex(2)
-                    .transition(.opacity)
+                AvatarViewer(
+                    url: viewModel.avatarURL,
+                    login: viewModel.login,
+                    namespace: viewerNamespace,
+                    dismiss: closeAvatar
+                )
+                .zIndex(2)
+                .transition(.opacity)
             }
         }
         .background(.background)
@@ -44,7 +49,7 @@ struct UserDetailView: View {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
                             Task {
-                                await vm.refreshAfterBackground()
+                                await viewModel.refreshAfterBackground()
                             }
                         } label: {
                             Image(systemName: "arrow.clockwise")
@@ -56,8 +61,8 @@ struct UserDetailView: View {
             #endif
         }
         .tint(collapse < 0.5 ? .white : .primary)
-        .task { await vm.onAppear() }
-        .onReturnFromBackground { await vm.refreshAfterBackground() }
+        .task { await viewModel.onAppear() }
+        .onReturnFromBackground { await viewModel.refreshAfterBackground() }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("userDetail")
     }
@@ -66,12 +71,12 @@ struct UserDetailView: View {
         ScrollView {
             VStack(spacing: 0) {
                 ProfileHeader(
-                    avatarURL: vm.avatarURL,
-                    login: vm.login,
+                    avatarURL: viewModel.avatarURL,
+                    login: viewModel.login,
                     offset: offset,
                     isAvatarOpen: showingAvatar,
                     namespace: viewerNamespace,
-                    openAvatar: { showingAvatar = true },
+                    openAvatar: { showingAvatar = true }
                 )
 
                 profileContent
@@ -99,12 +104,12 @@ struct UserDetailView: View {
 
     private var identity: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(vm.title)
+            Text(viewModel.title)
                 .font(.largeTitle.bold())
                 .overflowWrap()
                 .accessibilityAddTraits(.isHeader)
 
-            Text(vm.login)
+            Text(viewModel.login)
                 .font(.title3)
                 .foregroundStyle(.secondary)
                 .accessibilityIdentifier("detailLogin")
@@ -113,10 +118,10 @@ struct UserDetailView: View {
 
     @ViewBuilder
     private var biography: some View {
-        if vm.isLoadingFields {
+        if viewModel.isLoadingFields {
             Skeleton()
                 .frame(height: 42)
-        } else if let bio = vm.bio {
+        } else if let bio = viewModel.bio {
             Text(bio)
                 .font(.body)
                 .overflowWrap()
@@ -124,30 +129,30 @@ struct UserDetailView: View {
     }
 
     private var stats: some View {
-        ProfileStats(stats: vm.stats)
+        ProfileStats(stats: viewModel.stats)
             .overlay {
-                if vm.isLoadingFields {
+                if viewModel.isLoadingFields {
                     Skeleton()
                 }
             }
-            .accessibilityHidden(vm.isLoadingFields)
+            .accessibilityHidden(viewModel.isLoadingFields)
     }
 
     @ViewBuilder
     private var detailState: some View {
-        switch vm.state {
+        switch viewModel.state {
         case .idle, .loading:
             Skeleton()
                 .frame(height: 170)
 
         case let .failed(error):
-            ErrorState(error: error, retry: vm.retry)
+            ErrorState(error: error, retry: viewModel.retry)
 
         case .loaded:
-            ProfileInfo(rows: vm.infoRows)
+            ProfileInfo(rows: viewModel.infoRows)
                 .tint(.accentColor)
-            if let error = vm.refreshError {
-                ErrorState(error: error, retry: vm.retry)
+            if let error = viewModel.refreshError {
+                ErrorState(error: error, retry: viewModel.retry)
                     .accessibilityIdentifier("detailRefreshError")
             }
         }
@@ -163,7 +168,7 @@ struct UserDetailView: View {
     }
 
     private var collapsedTitle: some View {
-        Text(vm.title)
+        Text(viewModel.title)
             .font(.headline)
             .opacity(collapse)
             .accessibilityHidden(collapse < 0.9)

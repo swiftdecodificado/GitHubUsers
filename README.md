@@ -1,60 +1,48 @@
 # GitHub Users
 
-App iOS em SwiftUI para explorar usuários do GitHub e consultar seus perfis. A lista tem paginação, alternância entre grade e lista e busca entre os usuários já carregados.
+App iOS em SwiftUI para explorar usuários do GitHub e consultar seus perfis, com paginação, busca local e visualização em lista ou grade.
 
-Repositório: [swiftdecodificado/GitHubUsers](https://github.com/swiftdecodificado/GitHubUsers).
-
-## Demonstração
-
-> Espaço reservado para o GIF do app rodando no simulador.
-
-<!--
-Substitua o bloco acima pelo GIF quando estiver disponível:
-![GitHub Users no simulador: lista, busca, perfil e avatar](URL_DO_GIF)
--->
+A estrutura usa MVVM e um pacote local para integração com a API. Os testes cobrem tanto os fluxos de navegação quanto situações como cancelamento, falha ao carregar outra página e atualização sem perder o conteúdo da tela.
 
 ## Funcionalidades
 
-- Listagem paginada em grupos de 30 usuários, com grade adaptável à largura da tela.
-- Busca local por login e nome, quando disponível, sem diferenciar maiúsculas ou acentos.
-- Perfil com avatar, bio, contagens de repositórios, seguidores e seguindo, além das informações públicas disponíveis.
-- Avatar em tela cheia, com fechamento por toque, gesto ou botão.
-- Atualização ao puxar a lista e ao retornar do segundo plano. Se uma atualização falhar, o conteúdo já carregado permanece visível.
-- Estados de carregamento, lista vazia e erro, com nova tentativa e espera quando o limite de requisições é atingido.
-- Textos em português e inglês, rótulos de acessibilidade e ajustes para redução de movimento e transparência.
+* Lista paginada com alternância entre lista e grade.
+* Busca por login e nome entre os usuários já carregados.
+* Perfil público com avatar em tela cheia.
+* Atualização dos dados mantendo o conteúdo anterior em caso de falha.
+* Estados de carregamento, lista vazia, erro e limite de requisições.
+* Textos em português e inglês, rótulos de acessibilidade e suporte à redução de movimento e transparência.
 
-A busca filtra a lista em memória. Para incluir mais usuários nos resultados, limpe a busca e carregue novas páginas pela rolagem.
+A busca acontece em memória. Para incluir mais usuários nos resultados, é preciso carregar outras páginas.
 
-## Como o projeto está organizado
+## Organização do código
 
-As Views apresentam os estados mantidos por `UsersListViewModel` e `UserDetailViewModel`. A navegação entre lista e perfil fica no `NavigationStack` de `AppRootView`.
+As Views exibem o estado dos ViewModels. A navegação entre lista e perfil fica no `NavigationStack`, em `AppRootView`.
 
-Os ViewModels recebem um `GitHubClientProtocol`. Na execução normal, `GitHubClient` consulta a API com `URLSession` e `async/await`, valida as respostas HTTP e decodifica o JSON com `JSONDecoder` e modelos `Decodable`. Nos testes, essa dependência pode ser substituída para controlar respostas e falhas.
+Os ViewModels recebem um `GitHubClientProtocol`. Nos testes, um cliente simulado permite controlar as respostas e reproduzir falhas sem acessar a API.
 
-O pacote local `GitHubAPI` também reúne os modelos e os caches: usuários e perfis ficam em memória; os dados dos avatares são armazenados em memória e em disco. O app usa SwiftUI e Combine para apresentar as mudanças de estado.
-
-```text
-Config/                  Configurações de build e exemplo de assinatura
-Sources/
-  App/                   Entrada, dependências e navegação
-  Features/
-    UsersList/           Lista, busca, paginação e seus componentes
-    UserDetail/          Perfil, avatar e seus componentes
-  Components/            Componentes visuais compartilhados
-  Support/               Formatação, localização e apresentação de erros
-  Preview/               Dados e cliente simulado para Debug
-  Resources/             Catálogo de traduções
-Packages/GitHubAPI/       Cliente HTTP, modelos, caches e testes do pacote
-Tests/                   Testes dos ViewModels, mocks e fixtures
-UITests/                 Testes de interface com XCTest
-Package.swift            Lógica de apresentação testável no macOS
-project.yml              Definição do projeto para o XcodeGen
-GitHubUsers.xcodeproj/    Projeto Xcode gerado
+```mermaid
+flowchart TD
+    Root["AppRootView · NavigationStack"] --> List["UsersListView"]
+    Root --> Detail["UserDetailView"]
+    List --> ListVM["UsersListViewModel"]
+    Detail --> DetailVM["UserDetailViewModel"]
+    ListVM --> Contract["GitHubClientProtocol"]
+    DetailVM --> Contract
+    Client["GitHubClient"] -. implementa .-> Contract
+    Mock["Cliente simulado"] -. implementa .-> Contract
+    Client --> API["URLSession · GitHub REST API"]
 ```
 
-## Executar
+O pacote local `GitHubAPI` reúne o cliente HTTP com `async/await`, a validação das respostas, os modelos e os caches. Usuários e perfis ficam em memória; os dados dos avatares ficam em memória e disco.
 
-É necessário um Mac com Xcode e toolchain Swift 6.3 ou superior. O app exige iOS 17 ou superior; os testes de pacote no macOS exigem macOS 14 ou superior.
+## Rodar o projeto
+
+Requisitos:
+
+* Xcode com toolchain Swift 6.3 ou superior.
+* iOS 17 ou superior.
+* macOS 14 ou superior para os testes de pacote.
 
 ```sh
 git clone https://github.com/swiftdecodificado/GitHubUsers.git
@@ -62,31 +50,75 @@ cd GitHubUsers
 open GitHubUsers.xcodeproj
 ```
 
-No Xcode, selecione o scheme `GitHubUsers`, escolha um simulador e execute com **⌘R**. O app consulta a API sem token e precisa de internet para buscar dados novos.
+No Xcode, selecione o scheme `GitHubUsers`, escolha um simulador e execute com **⌘R**.
 
-Para executar em um iPhone, copie [Config/Signing.xcconfig.example](Config/Signing.xcconfig.example) para `Config/Signing.xcconfig` e preencha `DEVELOPMENT_TEAM` com o ID do seu Team. O arquivo local é ignorado pelo Git.
+O app funciona sem token e fica sujeito ao limite de requisições não autenticadas do GitHub.
+
+Para rodar em um iPhone, copie `Config/Signing.xcconfig.example` para `Config/Signing.xcconfig` e preencha `DEVELOPMENT_TEAM`. Esse arquivo é ignorado pelo Git.
+
+## Testes
+
+Os testes unitários usam **Swift Testing** e cobrem carregamento, paginação, busca, cancelamento, recuperação de erros, respostas HTTP e caches.
+
+Execute na raiz:
+
+```sh
+# ViewModels
+swift test
+
+# Cliente HTTP, modelos e caches
+swift test --package-path Packages/GitHubAPI
+```
+
+Os testes de interface usam **XCTest**, com dados simulados, para verificar navegação, busca, troca de layout, paginação, rotação, avatar e recuperação de falhas.
+
+Para rodar os testes pelo Xcode, use **⌘U** no scheme `GitHubUsers`.
 
 ## Configuração do projeto
 
-[project.yml](project.yml) define os targets, as dependências, o scheme e a versão mínima do iOS. [Config/Project.xcconfig](Config/Project.xcconfig) concentra as opções compartilhadas; [Config/App.xcconfig](Config/App.xcconfig) define a versão, o nome e as orientações do app.
-
-O projeto usa o modo de linguagem Swift 6. Para alterar a estrutura e regenerar o `.xcodeproj`, edite `project.yml` e execute com o XcodeGen instalado:
+O arquivo `project.yml` define a estrutura do projeto Xcode. Depois de alterá-lo, regenere o `.xcodeproj` com o XcodeGen:
 
 ```sh
 xcodegen generate --spec project.yml
 ```
 
-O scheme está configurado para executar sem LLDB. Para usar breakpoints, altere `run.debugEnabled` para `true` em `project.yml` e regenere o projeto.
+O scheme está configurado sem LLDB. Para usar breakpoints, defina `run.debugEnabled: true` em `project.yml` e regenere o projeto.
 
-## Testes
+## Formatação e lint
 
-Os testes unitários usam Swift Testing e exercitam carregamento, paginação, busca, cancelamento, recuperação de erros, respostas HTTP e caches. Execute os dois comandos na raiz:
+O projeto usa [SwiftFormat](https://github.com/nicklockwood/SwiftFormat) para formatação e [SwiftLint](https://github.com/realm/SwiftLint) para verificar as convenções do código. A configuração cobre o app, os testes, os manifests e o pacote `GitHubAPI`.
+
+Instale as ferramentas:
 
 ```sh
-swift test
-swift test --package-path Packages/GitHubAPI
+brew install swiftlint swiftformat
 ```
 
-O primeiro executa os testes dos ViewModels; o segundo executa os testes do pacote `GitHubAPI`.
+Para aplicar as correções e verificar o resultado, execute na raiz:
 
-Os testes de interface usam XCTest para exercitar navegação, busca, troca de layout, paginação, rotação, avatar e recuperação de falhas. No Xcode, use **⌘U** com o scheme `GitHubUsers`. Esses testes iniciam o app com dados simulados, sem depender da API; o cliente simulado e os argumentos de teste são compilados apenas em Debug.
+```sh
+swiftlint lint --fix --no-cache
+swiftformat . --cache ignore
+swiftlint lint --strict --no-cache
+```
+
+Para conferir a formatação sem alterar arquivos:
+
+```sh
+swiftformat . --lint --cache ignore
+```
+
+As regras ficam em [.swiftformat](.swiftformat) e [.swiftlint.yml](.swiftlint.yml), validadas com SwiftFormat 0.63.0 e SwiftLint 0.65.0.
+
+## Integração contínua
+
+O workflow [Swift CI](.github/workflows/swift.yml) roda em pushes e pull requests para `main`. Também pode ser iniciado manualmente pela aba Actions.
+
+O pipeline usa macOS 26 com Xcode 26.6 para:
+
+1. Executar os testes dos ViewModels e do pacote `GitHubAPI`.
+2. Gerar o projeto com XcodeGen.
+3. Compilar o app e os targets de teste em Debug para o simulador.
+4. Compilar o app em Release para o simulador.
+
+Os builds dispensam certificados e configuração de assinatura. Os testes de interface são compilados no CI, mas a execução é local, pelo Xcode.

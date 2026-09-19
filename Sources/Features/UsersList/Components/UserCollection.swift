@@ -43,7 +43,7 @@ struct UserCollection: View {
     private var gridColumns: [GridItem] {
         Array(
             repeating: GridItem(.flexible(), spacing: 10),
-            count: max(1, columns),
+            count: max(1, columns)
         )
     }
 
@@ -80,7 +80,7 @@ struct UserCollection: View {
                     users: [.preview],
                     layout: .grid,
                     columns: 2,
-                    loadNextPageIfNeeded: { _ in },
+                    loadNextPageIfNeeded: { _ in }
                 )
                 .padding(.horizontal, 16)
             }

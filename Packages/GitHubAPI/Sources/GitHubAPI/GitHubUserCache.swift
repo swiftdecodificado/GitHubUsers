@@ -14,7 +14,7 @@ public actor GitHubUserCache {
 
     public init(
         ttl: TimeInterval = 300,
-        now: @escaping @Sendable () -> Date = { .now },
+        now: @escaping @Sendable () -> Date = { .now }
     ) {
         self.ttl = ttl
         self.now = now
@@ -35,14 +35,14 @@ public actor GitHubUserCache {
 
         pages[since] = Entry(
             value: users,
-            expiry: now().addingTimeInterval(ttl),
+            expiry: now().addingTimeInterval(ttl)
         )
     }
 
     public func store(
         _ detail: GitHubUserDetail,
         login: String,
-        generation: Int,
+        generation: Int
     ) {
         guard generation == self.generation else {
             return
@@ -50,7 +50,7 @@ public actor GitHubUserCache {
 
         details[login] = Entry(
             value: detail,
-            expiry: now().addingTimeInterval(ttl),
+            expiry: now().addingTimeInterval(ttl)
         )
     }
 
