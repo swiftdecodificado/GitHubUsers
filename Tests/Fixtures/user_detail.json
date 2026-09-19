@@ -1,0 +1,16 @@
+{
+  "id": 1,
+  "login": "mojombo",
+  "avatar_url": "https://avatars.githubusercontent.com/u/1?v=4",
+  "html_url": "https://github.com/user1",
+  "name": "Tom Preston-Werner",
+  "bio": "Building things.",
+  "company": "GitHub",
+  "location": "San Francisco",
+  "blog": "https://tom.preston-werner.com",
+  "twitter_username": "mojombo",
+  "public_repos": 100,
+  "followers": 23100,
+  "following": 11,
+  "created_at": "2007-10-20T05:24:19Z"
+}

@@ -1,0 +1,62 @@
+name: GitHubUsers
+options:
+  xcodeVersion: '27.1'
+  developmentLanguage: pt-BR
+  deploymentTarget:
+    iOS: '17.0'
+  createIntermediateGroups: true
+fileGroups:
+  - Config/App.xcconfig
+  - Config/Project.xcconfig
+  - Config/Signing.xcconfig.example
+  - Package.swift
+  - README.md
+  - project.yml
+configFiles:
+  Debug: Config/Project.xcconfig
+  Release: Config/Project.xcconfig
+packages:
+  GitHubAPI:
+    path: Packages/GitHubAPI
+targets:
+  GitHubUsers:
+    type: application
+    platform: iOS
+    sources: [Sources]
+    configFiles:
+      Debug: Config/App.xcconfig
+      Release: Config/App.xcconfig
+    dependencies:
+      - package: GitHubAPI
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.swiftdecodificado.GitHubUsers
+  GitHubUsersTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests]
+    dependencies:
+      - target: GitHubUsers
+      - package: GitHubAPI
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.swiftdecodificado.GitHubUsersTests
+  GitHubUsersUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [UITests]
+    dependencies:
+      - target: GitHubUsers
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.swiftdecodificado.GitHubUsersUITests
+schemes:
+  GitHubUsers:
+    build:
+      targets:
+        GitHubUsers: all
+    run:
+      debugEnabled: false
+    test:
+      gatherCoverageData: true
+      targets: [GitHubUsersTests, GitHubUsersUITests]

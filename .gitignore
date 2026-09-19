@@ -1,0 +1,10 @@
+.DS_Store
+.build/
+**/.swiftpm/xcode/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcresult
+.build-logs/
+Delivery/
+Config/Signing.xcconfig

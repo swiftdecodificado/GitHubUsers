@@ -1,0 +1,3 @@
+// Copy to Signing.xcconfig and replace with your Apple Developer Team ID.
+// Signing.xcconfig is optional for the simulator and ignored by Git.
+DEVELOPMENT_TEAM = YOUR_TEAM_ID
