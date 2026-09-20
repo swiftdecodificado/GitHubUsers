@@ -4,6 +4,10 @@ App iOS em SwiftUI para explorar usuários do GitHub e consultar seus perfis, co
 
 O projeto usa MVVM e um pacote local para acesso à API. Além da navegação, os testes cobrem situações como cancelar uma requisição, falhar ao carregar a próxima página e atualizar os dados sem perder o conteúdo que já está na tela.
 
+<p align="center">
+  <img src="docs/assets/githubusers.gif" alt="Demonstração do GitHub Users no simulador iPhone Duo" width="720">
+</p>
+
 ## Funcionalidades
 
 * Lista paginada com visualização em lista ou grade.
