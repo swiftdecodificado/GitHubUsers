@@ -16,11 +16,13 @@ struct ProfileHeader: View {
         ZStack(alignment: .topLeading) {
             ProfileCover(url: avatarURL, login: login, offset: offset)
                 .background {
-                    GeometryReader { geometry in
-                        Color.clear.preference(
-                            key: DetailOffsetKey.self,
-                            value: geometry.frame(in: .named("detailScroll")).minY
-                        )
+                    if #unavailable(iOS 18) {
+                        GeometryReader { geometry in
+                            Color.clear.preference(
+                                key: DetailOffsetKey.self,
+                                value: geometry.frame(in: .named("detailScroll")).minY
+                            )
+                        }
                     }
                 }
 

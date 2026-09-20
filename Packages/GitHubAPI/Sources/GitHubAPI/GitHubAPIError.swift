@@ -18,6 +18,7 @@ public enum GitHubAPIError: Error, Sendable, Equatable {
     case http(statusCode: Int)
     case decoding
     case rateLimited(resetAt: Date)
+    case unknown
 }
 
 extension GitHubAPIError {

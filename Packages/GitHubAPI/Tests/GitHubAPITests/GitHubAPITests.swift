@@ -58,6 +58,7 @@ import Testing
 }
 
 @Test func `error convenience maps and formats retry state`() {
+    #expect(GitHubAPIError.map(GitHubAPIError.notFound) == .notFound)
     #expect(GitHubAPIError.map(URLError(.timedOut)) == .transport(.timedOut))
     #expect(
         GitHubAPIError.map(
@@ -69,6 +70,13 @@ import Testing
     #expect(error.resetAt == Date(timeIntervalSince1970: 60))
     #expect(error.remaining(at: Date(timeIntervalSince1970: 0)) == "01:00")
     #expect(error.canRetry(at: Date(timeIntervalSince1970: 60)))
+}
+
+@Test func `unknown errors do not imply a disconnected network`() {
+    struct UnexpectedFailure: Error {}
+    #expect(GitHubAPIError.map(UnexpectedFailure()) == .unknown)
+    #expect(GitHubAPIError.map(NSError(domain: "Cache", code: -1009)) == .unknown)
+    #expect(GitHubAPIError.map(URLError(.notConnectedToInternet)) == .network)
 }
 
 private extension GitHubUserDetail {

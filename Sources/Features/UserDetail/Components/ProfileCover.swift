@@ -6,15 +6,25 @@ struct ProfileCover: View {
     let login: String
     let offset: CGFloat
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
         GeometryReader { geometry in
-            RemoteImage(url: url, name: login)
-                .frame(width: geometry.size.width, height: 240 + max(0, offset))
-                .blur(radius: 28)
-                .scaleEffect(reduceMotion ? 1 : 1 + max(0, offset) / 700)
+            let stretch = max(0, offset)
+            let height = geometry.size.height + stretch
+            let blurPadding: CGFloat = 56
+
+            Rectangle()
+                .fill(.clear)
+                .frame(width: geometry.size.width, height: height)
+                .background {
+                    RemoteImage(url: url, name: login)
+                        .frame(
+                            width: geometry.size.width + blurPadding * 2,
+                            height: height + blurPadding * 2
+                        )
+                        .blur(radius: 28, opaque: true)
+                }
                 .overlay {
                     LinearGradient(
                         colors: [
@@ -26,11 +36,11 @@ struct ProfileCover: View {
                         endPoint: .bottom
                     )
                 }
-                .drawingGroup()
-                .offset(y: reduceMotion ? 0 : (offset > 0 ? -offset : -offset * 0.28))
+                .clipped()
+                .offset(y: -stretch)
         }
         .frame(height: 240)
-        .clipped()
+        .ignoresSafeArea(.container, edges: .horizontal)
         .accessibilityHidden(true)
     }
 }

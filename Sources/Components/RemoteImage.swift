@@ -11,6 +11,7 @@ struct RemoteImage: View {
     @Environment(\.displayScale) private var displayScale
 
     @State private var decoded: CGImage?
+    @State private var decodedURL: URL?
 
     var body: some View {
         GeometryReader { geometry in
@@ -34,7 +35,11 @@ struct RemoteImage: View {
             .frame(width: geometry.size.width, height: geometry.size.height)
             .clipped()
             .task(id: url) {
+                guard decodedURL != url || decoded == nil else {
+                    return
+                }
                 decoded = nil
+                decodedURL = nil
 
                 do {
                     guard let images else {
@@ -51,9 +56,11 @@ struct RemoteImage: View {
                     ) else {
                         return
                     }
+                    try Task.checkCancellation()
 
                     withAnimation(reduceMotion ? nil : .easeIn(duration: 0.25)) {
                         decoded = image
+                        decodedURL = url
                     }
                 } catch { /* Initial fallback remains visible, including during cancellation. */ }
             }

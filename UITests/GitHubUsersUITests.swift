@@ -94,11 +94,13 @@ final class GitHubUsersUITests: XCTestCase {
         XCTAssertTrue(app.buttons["user-1"].waitForExistence(timeout: 5))
     }
 
-    @MainActor private func capture(_ app: XCUIApplication, name: String) {
-        let attachment = XCTAttachment(screenshot: app.screenshot())
-        attachment.name = name
-        attachment.lifetime = .keepAlways
-        add(attachment)
+    @MainActor private func capture(_: XCUIApplication, name: String) {
+        for (index, screen) in XCUIScreen.screens.enumerated() {
+            let attachment = XCTAttachment(screenshot: screen.screenshot())
+            attachment.name = "\(name)-screen-\(index)"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
     }
 
     @MainActor func testDetailRefreshFailureKeepsProfileAndRetryRecovers() {
@@ -129,5 +131,51 @@ final class GitHubUsersUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-UITEST_MOCK"]
         measure(metrics: [XCTApplicationLaunchMetric()]) { app.launch() }
+    }
+
+    @MainActor func testProfileLayoutAfterScrollingAndRotation() {
+        XCUIDevice.shared.orientation = .portrait
+        let app = launch()
+        let first = app.buttons["user-1"]
+        XCTAssertTrue(first.waitForExistence(timeout: 10))
+        first.tap()
+        XCTAssertTrue(app.staticTexts["detailLogin"].waitForExistence(timeout: 5))
+        let avatar = app.buttons["openAvatar"]
+        XCTAssertTrue(avatar.isHittable)
+        capture(app, name: "profile-cover-portrait")
+
+        app.swipeUp()
+        app.swipeDown()
+        XCTAssertTrue(avatar.isHittable)
+        capture(app, name: "profile-cover-after-scroll")
+
+        XCUIDevice.shared.orientation = .landscapeLeft
+        defer { XCUIDevice.shared.orientation = .portrait }
+        XCTAssertTrue(avatar.waitForExistence(timeout: 5))
+        XCTAssertTrue(avatar.isHittable)
+        capture(app, name: "profile-cover-landscape")
+        avatar.tap()
+        XCTAssertTrue(app.buttons["closeAvatar"].waitForExistence(timeout: 5))
+        app.buttons["closeAvatar"].tap()
+        XCTAssertTrue(avatar.isHittable)
+    }
+
+    @MainActor func testProfileScrollPerformance() {
+        let app = launch()
+        let first = app.buttons["user-1"]
+        XCTAssertTrue(first.waitForExistence(timeout: 10))
+        first.tap()
+        XCTAssertTrue(app.staticTexts["detailLogin"].waitForExistence(timeout: 5))
+
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        // Offline data isolates layout and scrolling; image/network costs are not measured here.
+        measure(
+            metrics: [XCTClockMetric(), XCTCPUMetric(application: app), XCTMemoryMetric(application: app)],
+            options: options
+        ) {
+            app.swipeUp()
+            app.swipeDown()
+        }
     }
 }

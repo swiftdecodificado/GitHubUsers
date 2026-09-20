@@ -35,38 +35,20 @@ enum GitHubEndpoint: Equatable, Sendable {
         )
 
         request.httpMethod = "GET"
-        request.setValue(
-            "application/vnd.github+json",
-            forHTTPHeaderField: "Accept"
-        )
-        request.setValue(
-            "2022-11-28",
-            forHTTPHeaderField: "X-GitHub-Api-Version"
-        )
-        request.setValue(
-            "GitHubAPI-Swift",
-            forHTTPHeaderField: "User-Agent"
-        )
+        request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+        request.setValue("2022-11-28", forHTTPHeaderField: "X-GitHub-Api-Version")
+        request.setValue("GitHubAPI-Swift", forHTTPHeaderField: "User-Agent")
 
         if let token {
-            request.setValue(
-                "Bearer \(token)",
-                forHTTPHeaderField: "Authorization"
-            )
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
 
         return request
     }
 
-    private func validatedComponents(
-        baseURL: URL,
-        requiresHTTPS: Bool
-    ) throws -> URLComponents {
+    private func validatedComponents(baseURL: URL, requiresHTTPS: Bool) throws -> URLComponents {
         guard
-            let components = URLComponents(
-                url: baseURL,
-                resolvingAgainstBaseURL: false
-            ),
+            let components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false),
             let scheme = components.scheme?.lowercased(),
             scheme == "http" || scheme == "https",
             let host = components.host,
@@ -83,10 +65,7 @@ enum GitHubEndpoint: Equatable, Sendable {
         return components
     }
 
-    private func validateConfiguration(
-        token: String?,
-        timeout: TimeInterval
-    ) throws {
+    private func validateConfiguration(token: String?, timeout: TimeInterval) throws {
         guard timeout.isFinite, timeout > 0 else {
             throw GitHubAPIError.invalidInput
         }
@@ -104,9 +83,7 @@ enum GitHubEndpoint: Equatable, Sendable {
         }
     }
 
-    private func configureURL(
-        _ components: inout URLComponents
-    ) throws {
+    private func configureURL(_ components: inout URLComponents) throws {
         var path = components.percentEncodedPath
 
         while path.hasSuffix("/") {
@@ -136,8 +113,7 @@ enum GitHubEndpoint: Equatable, Sendable {
 
     private func validateLogin(_ login: String) throws {
         let allowedCharacters = CharacterSet(
-            charactersIn:
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
+            charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
         )
 
         guard

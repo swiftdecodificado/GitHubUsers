@@ -177,6 +177,22 @@
         }
       }
     },
+    "error.unknown" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to complete the operation. Try again."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível concluir a operação. Tente novamente."
+          }
+        }
+      }
+    },
     "error.server" : {
       "localizations" : {
         "en" : {

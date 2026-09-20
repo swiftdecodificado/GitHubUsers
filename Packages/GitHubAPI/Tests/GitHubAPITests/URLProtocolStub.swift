@@ -8,6 +8,8 @@ final class URLProtocolStub: URLProtocol {
         var data = Data()
         var error: URLError?
         var nonHTTP = false
+        var bodyError: URLError?
+        var finishesLoading = true
     }
 
     private struct RegistryState {
@@ -78,7 +80,11 @@ final class URLProtocolStub: URLProtocol {
 
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         client?.urlProtocol(self, didLoad: reply.data)
-        client?.urlProtocolDidFinishLoading(self)
+        if let error = reply.bodyError {
+            client?.urlProtocol(self, didFailWithError: error)
+        } else if reply.finishesLoading {
+            client?.urlProtocolDidFinishLoading(self)
+        }
     }
 
     override func stopLoading() {}

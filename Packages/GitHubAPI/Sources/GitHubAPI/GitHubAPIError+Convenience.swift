@@ -43,6 +43,6 @@ public extension GitHubAPIError {
             return .transport(error.code)
         }
 
-        return .network
+        return .unknown
     }
 }

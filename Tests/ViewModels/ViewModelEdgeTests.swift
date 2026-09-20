@@ -74,4 +74,23 @@ import Testing
         #expect(viewModel.bio == detail.bio)
         await viewModel.onAppear()
     }
+
+    @Test func `unknown refresh failure keeps profile and can recover`() async throws {
+        let user = try Fixtures.users()[0]
+        let detail = try Fixtures.detail()
+        let viewModel = UserDetailViewModel(
+            user: user,
+            service: MockGitHubClient(details: [.success(detail), .failure(.unknown), .success(detail)])
+        )
+        await viewModel.onAppear()
+        await viewModel.refreshAfterBackground()
+        #expect(viewModel.detail == detail)
+        #expect(viewModel.refreshError == .unknown)
+        #expect(GitHubAPIError.unknown.errorDescription != GitHubAPIError.network.errorDescription)
+        #expect(GitHubAPIError.unknown.canRetry(at: .now))
+
+        await viewModel.retry()
+        #expect(viewModel.detail == detail)
+        #expect(viewModel.refreshError == nil)
+    }
 }

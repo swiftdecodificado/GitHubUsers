@@ -7,7 +7,6 @@ struct UserDetailView: View {
     @State private var showingAvatar = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     @State private var offset: CGFloat = 0
 
@@ -37,7 +36,7 @@ struct UserDetailView: View {
         }
         .background(.background)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbarBackground(collapse >= 1 ? .visible : .hidden, for: .navigationBar)
         .toolbar(showingAvatar ? .hidden : .visible, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -84,9 +83,8 @@ struct UserDetailView: View {
             .frame(maxWidth: .infinity)
         }
         .coordinateSpace(name: "detailScroll")
-        .onPreferenceChange(DetailOffsetKey.self) { offset = $0 }
+        .modifier(ProfileScrollTracking(offset: $offset))
         .ignoresSafeArea(edges: .top)
-        .overlay(alignment: .top) { collapsedBarBackground }
     }
 
     private var profileContent: some View {
@@ -158,15 +156,6 @@ struct UserDetailView: View {
         }
     }
 
-    private var collapsedBarBackground: some View {
-        Rectangle()
-            .fill(reduceTransparency ? AnyShapeStyle(.background) : AnyShapeStyle(.regularMaterial))
-            .frame(height: 100)
-            .opacity(collapse)
-            .ignoresSafeArea(edges: .top)
-            .allowsHitTesting(false)
-    }
-
     private var collapsedTitle: some View {
         Text(viewModel.title)
             .font(.headline)
@@ -177,6 +166,36 @@ struct UserDetailView: View {
     private func closeAvatar() {
         withAnimation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.85)) {
             showingAvatar = false
+        }
+    }
+}
+
+private struct ProfileScrollTracking: ViewModifier {
+    @Binding var offset: CGFloat
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            tracked(content)
+                .scrollEdgeEffectHidden(offset > -160, for: .top)
+        } else {
+            tracked(content)
+        }
+    }
+
+    @ViewBuilder
+    private func tracked(_ content: Content) -> some View {
+        if #available(iOS 18, *) {
+            content
+                .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                    // Insets vary when the Duo changes its screen configuration.
+                    // Once the cover is offscreen, further scrolling need not update it.
+                    max(-240, -(geometry.contentOffset.y + geometry.contentInsets.top))
+                } action: { _, newValue in
+                    offset = newValue
+                }
+        } else {
+            content
+                .onPreferenceChange(DetailOffsetKey.self) { offset = max(-240, $0) }
         }
     }
 }

@@ -22,7 +22,6 @@ struct ProfileStats: View {
         }
         .padding(20)
         .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 20))
-        .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: stats)
     }
 
     private var verticalStats: some View {
@@ -37,7 +36,9 @@ struct ProfileStats: View {
             VStack(spacing: 6) {
                 Text(stat.value)
                     .font(.title2.bold())
+                    .monospacedDigit()
                     .contentTransition(.opacity)
+                    .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: stat.value)
 
                 Text(L10n.stat(stat.kind))
                     .font(.footnote)

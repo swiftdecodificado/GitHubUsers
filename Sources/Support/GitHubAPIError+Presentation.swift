@@ -14,6 +14,8 @@ extension GitHubAPIError {
             String(localized: "error.decoding", defaultValue: "Não foi possível ler a resposta do GitHub.")
         case .rateLimited:
             String(localized: "error.rateLimited", defaultValue: "Limite de requisições atingido.")
+        case .unknown:
+            String(localized: "error.unknown", defaultValue: "Não foi possível concluir a operação. Tente novamente.")
         }
     }
 }
