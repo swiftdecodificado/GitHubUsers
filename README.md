@@ -141,10 +141,3 @@ O pipeline usa macOS 26 com Xcode 26.6 e executa estas etapas:
 4. Build do app em Release para o simulador.
 
 Os builds não precisam de certificados, Team ou `Config/Signing.xcconfig`. Os testes de interface são compilados no CI; a execução continua sendo local, pelo Xcode com **⌘U**.
-
-## Swift Decodificado
-
-Estou criando o canal e o site do Swift Decodificado para compartilhar conteúdo sobre Swift e desenvolvimento iOS. Os dois ainda estão em construção.
-
-* [Canal no YouTube](https://www.youtube.com/@swiftdecodificado)
-* [Site Swift Decodificado](https://www.swiftdecodificado.com)
